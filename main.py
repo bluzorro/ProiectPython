@@ -1,3 +1,6 @@
+
+from PyQt6.QtCore import Qt
+
 class Carte:
     def __init__(self, name, author, genre, launchYear, pages):
         self.name = name
@@ -15,11 +18,11 @@ class User:
         
 class Library:
 
-    def __add_carte__(self, name, author, genre, launchYear, pages):
+    def addCarte(self, name, author, genre, launchYear, pages):
         carte = Carte(name, author, genre, launchYear, pages)
         listaCarti.append(carte)
 
-    def __filter_autor(author):
+    def filterAutor(author):
         # Filtered search dupa author, va afisa doar cartilor scrise de autorul respectiv
         listaCurenta.clear()
         for carte in listaCarti:
@@ -29,7 +32,7 @@ class Library:
         # Functie display/update display si afiseaza cartile care corespund filtrarii
 
 
-    def __filter_genre(genre):
+    def filterGenre(genre):
         listaCurenta.clear()
         for carte in listaCarti:
             if (genre == carte.genre):
@@ -37,11 +40,13 @@ class Library:
 
         # Update display
 
-    def __imprumuta_carte(self, carte: Carte):
+    def imprumutaCarte(self, carte: Carte):
         # WIP
+        return
 
-    def __returneaza_carte(self, carte: Carte):
+    def returneazaCarte(self, carte: Carte):
         # WIP
+        return
 
 
 listaCarti = [
@@ -62,5 +67,76 @@ print(" Bibliotheca Virtualis ")
 print("~-~-~-~-~-~-~-~-~-~-~-~\n")
 
 print("Cu ce te putem ajuta?\n")
+
+
+
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QLineEdit
+import sys
+
+app = QApplication(sys.argv)
+window = QWidget()
+# window.setFixedSize(800, 640)
+window.setWindowTitle("Bibliotheca Virtualis")
+
+window.setStyleSheet("""
+    QWidget {
+        background-color: rgb(50, 50, 100);
+    }
+    
+    QLabel { 
+        color: white;
+        font-size: 24px;
+        margin: 0px;
+        padding: 0px;
+        font-weight: bold;
+    }
+    
+    QLabel[role="separator"] {
+        font-size: 24px;
+        margin: 5px;
+        padding: 0px;
+    }
+    
+    QPushButton {
+        background-position: bottom center;
+        background-color: rgb(70, 70, 150);
+        color: white;
+        font-size: 16px;
+        margin-bottom: 20px;
+        min-width: 100px;
+        max-width: 200px;
+        padding: 5px;
+        font-family: sans-serif;
+        border-radius: 0px;
+    }
+    
+    QPushButton:hover {
+        background-color: rgb(40, 40, 80);
+    }
+""")
+
+layout = QVBoxLayout()
+
+firstSep = QLabel("~-~-~-~-~-~-~-~-~-~-~-~")
+firstSep.setProperty("role", "separator")
+# firstSep.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+layout.addWidget(firstSep)
+
+title = QLabel("Bibliotheca Virtualis")
+# title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+layout.addWidget(title)
+
+secondSep = QLabel("~-~-~-~-~-~-~-~-~-~-~-~")
+secondSep.setProperty("role", "separator")
+# secondSep.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+layout.addWidget(secondSep)
+
+button = QPushButton("Login")
+layout.addWidget(button, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+window.setLayout(layout)
+window.show()
+sys.exit(app.exec())
+
 
 # while (1):
