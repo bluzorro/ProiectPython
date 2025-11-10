@@ -37,6 +37,12 @@ class Library:
 
         # Update display
 
+    def __imprumuta_carte(self, carte: Carte):
+        # WIP
+
+    def __returneaza_carte(self, carte: Carte):
+        # WIP
+
 
 listaCarti = [
     Carte("Poor Folk", "Fyodor Dostoyevsky", "Fiction", 1846, 271),
