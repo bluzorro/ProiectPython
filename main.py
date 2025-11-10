@@ -1,4 +1,4 @@
-listaCarti = []
+listaCarti = [] # de introdus sau fetch-ed
 
 class Carte:
     def __init__(self, name, author, genre, launchYear, pages):
