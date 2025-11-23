@@ -241,6 +241,9 @@ class MainPage(QMainWindow):
         scroll.setWidget(container)
         layout.addWidget(scroll)
 
+        # ----------------------------------------------------
+        #           ADAUGĂ CĂRȚI ÎN GRID (DEMO)
+        # ----------------------------------------------------
 
         self.addBooksToGrid(listaCarti)
 
@@ -249,7 +252,7 @@ class MainPage(QMainWindow):
             QMainWindow {
                     background-color: rgb(50, 50, 100);
                 }
-            
+
             QLabel {
                 color: white;
                 font-size: 24px;
@@ -258,7 +261,7 @@ class MainPage(QMainWindow):
                 margin: 0px;
                 qproperty-alignment: AlignCenter;
             }
-            
+
             #BookTitle {
                 color: white;
                 font-size: 16px;
@@ -269,17 +272,17 @@ class MainPage(QMainWindow):
                 color: rgb(200, 200, 255);
                 font-size: 14px;
             }
-    
+
             QLabel[role="separator"] {
                 font-size: 24px;
                 font-weight: normal;
             }
-            
+
             QLabel[role="subtitle"] {
                 font-size: 24px;
                 font-weight: normal;
             }
-            
+
             QPushButton {
                 background-color: rgb(70, 70, 150);
                 color: white;
@@ -288,39 +291,39 @@ class MainPage(QMainWindow):
                 border-radius: 4px;
                 min-width: 250px;
             }
-            
+
             QPushButton:hover {
                 background-color: rgb(40, 40, 80);
             }
-            
+
             QScrollBar:vertical {
                 background: transparent;
                 width: 10px;
                 margin: 0px;
             }
-            
+
             QScrollBar::handle:vertical {
                 background-color: rgb(100, 100, 170);
                 min-height: 30px;
                 border-radius: 5px;
             }
-            
+
             QScrollBar::handle:vertical:hover {
                 background-color: rgb(140, 140, 200);
             }
-            
+
             QScrollBar::add-line:vertical,
             QScrollBar::sub-line:vertical {
                 height: 0px;
             }
-            
+
             QScrollBar::add-page:vertical,
             QScrollBar::sub-page:vertical {
                 background: none;
             }
-            
-            
-            
+
+
+
 
             #BookCard {
                 background-color: rgb(40, 40, 90);
@@ -328,8 +331,12 @@ class MainPage(QMainWindow):
                 border-radius: 6px;
             }
 
-            
+
         """)
+
+    # ======================================================
+    #       FUNCȚIE CARE GENEREAZĂ AUTOMAT CARDURILE
+    # ======================================================
 
     def addBooksToGrid(self, books):
         cols = 4
@@ -396,46 +403,46 @@ class LoginPage(QWidget):
         self.setupStyle()
 
     def setupUI(self):
-        layout = QVBoxLayout(self)
+        self.layout = QVBoxLayout(self)
         # self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         # self.layout.addStretch()
         # self.layout.setSpacing(10)  # spatiu mic între widget-uri
-        layout.setContentsMargins(10, 20, 10, 20)  # margini curate
+        self.layout.setContentsMargins(10, 20, 10, 20)  # margini curate
 
         # SEPARATOR SUS
         firstSep = QLabel("~-~-~-~-~-~-~-~-~-~-~")
         firstSep.setProperty("role", "separator")
         firstSep.setFixedHeight(28)  # elimină spațiul excesiv
-        layout.addWidget(firstSep)
+        self.layout.addWidget(firstSep)
 
         # TITLU
         title = QLabel("Bibliotheca Virtualis")
         title.setFixedHeight(35)
-        layout.addWidget(title)
+        self.layout.addWidget(title)
 
         # SEPARATOR JOS
         secondSep = QLabel("~-~-~-~-~-~-~-~-~-~-~")
         secondSep.setProperty("role", "separator")
         secondSep.setFixedHeight(28)
-        layout.addWidget(secondSep)
+        self.layout.addWidget(secondSep)
 
         # Username
         self.username = QLineEdit()
         self.username.setPlaceholderText("Username")
-        layout.addWidget(self.username)
+        self.layout.addWidget(self.username)
 
         # Password
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.EchoMode.Password)
         self.password.setPlaceholderText("Password")
-        layout.addWidget(self.password)
+        self.layout.addWidget(self.password)
 
-        layout.addSpacing(20)
+        self.layout.addSpacing(20)
 
         # Login Button
         loginButton = QPushButton("Login")
         loginButton.clicked.connect(self.doLogin)
-        layout.addWidget(loginButton)
+        self.layout.addWidget(loginButton)
 
         # self.layout.addStretch(1)
 
@@ -445,7 +452,7 @@ class LoginPage(QWidget):
                 background-color: rgb(50, 50, 100);
                 font-family: sans-serif;
             }
-    
+
             QLabel {
                 color: white;
                 font-size: 24px;
@@ -454,12 +461,12 @@ class LoginPage(QWidget):
                 margin: 0px;
                 qproperty-alignment: AlignCenter;
             }
-    
+
             QLabel[role="separator"] {
                 font-size: 24px;
                 font-weight: normal;
             }
-    
+
             QLineEdit {
                 background-color: rgb(30, 30, 70);
                 color: white;
@@ -470,12 +477,12 @@ class LoginPage(QWidget):
                 min-width: 250px;
                 max-height: 30px;
             }
-    
+
             QLineEdit:focus {
                 border: 1px solid rgb(120, 120, 200);
                 background-color: rgb(40, 40, 90);
             }
-    
+
             QPushButton {
                 background-color: rgb(70, 70, 150);
                 color: white;
@@ -485,7 +492,7 @@ class LoginPage(QWidget):
                 min-width: 150px;
                 margin-top: 10px;
             }
-    
+
             QPushButton:hover {
                 background-color: rgb(40, 40, 80);
             }
