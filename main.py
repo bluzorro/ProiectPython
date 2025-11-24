@@ -1,11 +1,11 @@
-import requests
-from PyQt6.QtGui import QIcon, QPixmap
+import sys
+from library_manager import LibraryManager
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout,
-    QLabel, QLineEdit, QMainWindow, QGridLayout, QScrollArea, QHBoxLayout, QComboBox
+    QLabel, QLineEdit, QMainWindow, QGridLayout, QScrollArea, QHBoxLayout, QComboBox, QTabWidget, QSizePolicy
 )
-from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal
-import sys
 
 
 class Carte:
@@ -26,8 +26,8 @@ class User:
 
 class Library:
 
-    def addCarte(self, name, author, genre, launchYear, pages):
-        carte = Carte(name, author, genre, launchYear, pages)
+    def addCarte(self, carte: Carte):
+        # carte = Carte(name, author, genre, launchYear, pages)
         listaCarti.append(carte)
 
     def filterAutor(self, author):
@@ -54,6 +54,8 @@ class Library:
     def returneazaCarte(self, carte: Carte):
         # WIP
         return
+
+
 
 
 listaCarti = [
@@ -186,6 +188,21 @@ class MainPage(QMainWindow):
         self.setWindowIcon(QIcon("appIcon.png"))
         self.setMinimumSize(900, 600)
 
+        self.manager = LibraryManager()
+        self.username = username
+
+        # Load in cartile user-ului
+        borrowedNames = self.manager.getUserBooks(self.username)
+
+        self.myBooks = [
+            c for c in listaCarti
+            if c.name in borrowedNames
+        ]
+
+        self.allBooks = [c for c in listaCarti if not self.manager.isBorrowed(c.name)]
+
+
+
         # CONTINUTUL PRINCIPAL
         central = QWidget()
         self.setCentralWidget(central)
@@ -233,7 +250,7 @@ class MainPage(QMainWindow):
         searchLayout.setSpacing(10)
 
         self.searchBar = QLineEdit()
-        self.searchBar.setPlaceholderText("Caută carte, autor sau gen...")
+        self.searchBar.setPlaceholderText("Cauta carte, autor sau gen...")
         self.searchBar.textChanged.connect(self.applyFilters)
 
         self.genreFilter = QComboBox()
@@ -241,7 +258,7 @@ class MainPage(QMainWindow):
         self.genreFilter.currentIndexChanged.connect(self.applyFilters)
 
         self.authorFilter = QComboBox()
-        self.authorFilter.addItem("Toți autorii")
+        self.authorFilter.addItem("Toti autorii")
         self.authorFilter.currentIndexChanged.connect(self.applyFilters)
 
         searchLayout.addWidget(self.searchBar)
@@ -251,29 +268,68 @@ class MainPage(QMainWindow):
         layout.addWidget(searchRow)
         layout.addSpacing(20)
 
-        # ----------------------------------------------------
-        #                 GRID + SCROLLAREA
-        # ----------------------------------------------------
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("border: none;")
+        # -------------------- TAB WIDGET --------------------
+        self.tabs = QTabWidget()
+        self.tabs.addTab(QWidget(), "Carti disponibile")
+        self.tabs.addTab(QWidget(), "Cartile mele")
+        self.tabs.setStyleSheet("""
+            QTabWidget::pane {
+                border: none;
+            }
+            
+            QTabWidget::tab-bar { alignment: center; }
 
-        container = QWidget()
-        self.grid = QGridLayout(container)
-        self.grid.setSpacing(20)
-        self.grid.setContentsMargins(30, 10, 30, 10)
+            
+            QTabBar::tab {
+                background: rgb(30,30,70);
+                color: white;
+                min-width: 160px;
+                padding: 15px 25px;
+                font-size: 18px;    
+                border-radius: 4px;         
+                margin: 0px 6px;
+            }
+            
+            QTabBar::tab:selected {
+                background: rgb(80,80,180);
+            }
+        """)
+        self.tabs.currentChanged.connect(self.onTabChanged)
+        layout.addWidget(self.tabs)
 
-        scroll.setWidget(container)
-        layout.addWidget(scroll)
+        # Grid-ul
+        self.gridWidget = QWidget()
+        self.grid = QGridLayout(self.gridWidget)
+        self.grid.setSpacing(15)
+        self.gridWidget.setLayout(self.grid)
 
-        # ----------------------------------------------------
-        #           ADAUGĂ CĂRȚI ÎN GRID (DEMO)
-        # ----------------------------------------------------
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll.setStyleSheet("border: none;")
 
-        self.addBooksToGrid(listaCarti)
+        self.scroll.setWidget(self.gridWidget)
 
+        self.tabs.widget(0).setLayout(QVBoxLayout())
+        self.tabs.widget(0).layout().addWidget(self.scroll)
+
+        # --- TAB 1 (My Books) ---
+        self.myScroll = QScrollArea()
+        self.myScroll.setWidgetResizable(True)
+        self.myScroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.myScroll.setStyleSheet("border: none;")
+
+        self.myGridWidget = QWidget()
+        self.myGrid = QGridLayout(self.myGridWidget)
+        self.myGrid.setSpacing(15)
+
+        self.myScroll.setWidget(self.myGridWidget)
+
+        self.tabs.widget(1).setLayout(QVBoxLayout())
+        self.tabs.widget(1).layout().addWidget(self.myScroll)
+
+        self.reloadAllBooksGrid(self.allBooks)
         self.populateFilters(listaCarti)
-        self.allBooks = listaCarti[:]
 
         # Stil general
         self.setStyleSheet("""
@@ -317,11 +373,11 @@ class MainPage(QMainWindow):
                 font-size: 18px;
                 padding: 8px 15px;
                 border-radius: 4px;
-                min-width: 250px;
+                
             }
-
+            
             QPushButton:hover {
-                background-color: rgb(40, 40, 80);
+                background-color: rgb(80, 80, 180);
             }
 
             QScrollBar:vertical {
@@ -375,28 +431,69 @@ class MainPage(QMainWindow):
                 width: 20px;
                 background: rgb(60, 60, 120);
             }
-
+            
         """)
 
-    # ======================================================
-    #       FUNCȚIE CARE GENEREAZĂ AUTOMAT CARDURILE
-    # ======================================================
 
-    def addBooksToGrid(self, books):
-        cols = 4
+    def onTabChanged(self, index):
+        if index == 0:  # Available Books
+            self.reloadAllBooksGrid(self.allBooks)
+        elif index == 1:  # My Books
+            self.reloadMyBooksGrid()
+
+    def addBooksToGrid(self, bookList, minCardWidth=180):
+        # aflam latimea disponibila in viewport
+        viewportWidth = self.scroll.viewport().width()
+
+        # luam marginile grid-ului (left + right)
+        margins = self.grid.contentsMargins()
+        horizMargin = margins.left() + margins.right()
+
+        spacing = self.grid.horizontalSpacing() if self.grid.horizontalSpacing() is not None else self.grid.spacing()
+
+
+        available = max(1, viewportWidth - horizMargin)
+
+        # calculam câte coloane încap la minCardWidth
+        # formula: cols = floor( (available + spacing) / (minCardWidth + spacing) )
+        # adaugam spacing la available astfel incat ultima coloana sa nu ceara un spacing suplimentar
+        cols = max(1, int((available + spacing) // (minCardWidth + spacing)))
+
+        # calculeaza latimea reala a unui card astfel incat toate sa incapa
+        totalSpacing = spacing * (cols - 1)
+        cardWidth = max(1, int((available - totalSpacing) / cols))
+
         row = 0
         col = 0
+        for carte in bookList:
 
-        for carte in books:
-            card = self.createBookCard(carte)
-            self.grid.addWidget(card, row, col)
+            if bookList != self.myBooks:
+                card = self.createBookCard(carte)
+            else:
+                card = self.createBookCard(carte, True)
+
+            card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            card.setMinimumWidth(cardWidth)
+
+
+            if bookList != self.myBooks:
+                self.grid.addWidget(card, row, col)
+            else:
+                self.myGrid.addWidget(card, row, col)
 
             col += 1
             if col >= cols:
                 col = 0
                 row += 1
 
-    def createBookCard(self, carte):
+        # distribuim in mod egal spatiu pe rand
+        for c in range(cols):
+            self.grid.setColumnStretch(c, 1)
+
+
+
+    def createBookCard(self, carte, myBook=False):
+
         card = QWidget()
         card.setObjectName("BookCard")
 
@@ -407,7 +504,8 @@ class MainPage(QMainWindow):
 
         # --- COVER IMAGE ---
         cover = QLabel()
-        cover.setProperty("role", "cover")
+        cover.setObjectName("CoverLabel")
+        # cover.setProperty("role", "cover")
         cover.setFixedSize(140, 200)
         cover.setAlignment(Qt.AlignmentFlag.AlignCenter)
         cover.setText("Cover\n(140x200)")
@@ -429,7 +527,22 @@ class MainPage(QMainWindow):
         genre.setStyleSheet("color: rgb(160,160,230); font-size: 13px;")
         layout.addWidget(genre, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        if myBook == False:
+            btn = QPushButton("Imprumuta")
+            # btn.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
+            btn.clicked.connect(lambda checked, c=carte: self.imprumutaCarte(c))
+
+            layout.addWidget(btn)
+        else:
+            btn = QPushButton("Returneaza")
+            # btn.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
+            btn.clicked.connect(lambda checked, c=carte: self.returneazaCarte(c))
+
+            layout.addWidget(btn)
+
         return card
+
+
 
     def populateFilters(self, books):
         genres = set()
@@ -439,12 +552,14 @@ class MainPage(QMainWindow):
             genres.add(c.genre)
             authors.add(c.author)
 
-        # adăugăm sortate frumos
+        # sortate frumos
         for g in sorted(genres):
             self.genreFilter.addItem(g)
 
         for a in sorted(authors):
             self.authorFilter.addItem(a)
+
+
 
     def applyFilters(self):
         search = self.searchBar.text().lower().strip()
@@ -463,29 +578,48 @@ class MainPage(QMainWindow):
                         search not in c.genre.lower()):
                     ok = False
 
-            # filtru gen
+            # filter gen
             if genre != "Toate genurile" and c.genre != genre:
                 ok = False
 
-            # filtru autor
-            if author != "Toți autorii" and c.author != author:
+            # filter autor
+            if author != "Toti autorii" and c.author != author:
                 ok = False
 
             if ok:
                 result.append(c)
 
-        self.reloadGrid(result)
+        self.reloadAllBooksGrid(result)
 
-    def reloadGrid(self, books):
-        # ștergem cardurile existente
+
+    def reloadAllBooksGrid(self, books):
+        # stergem cardurile existente
+
+        scrollPos = self.scroll.verticalScrollBar().value()
+
         while self.grid.count():
             item = self.grid.takeAt(0)
             widget = item.widget()
             if widget:
                 widget.setParent(None)
 
-        # adaugăm noile rezultate
+        # updatam grid-ul
+        self.allBooks.sort(key=lambda b: b.name)
         self.addBooksToGrid(books)
+        self.scroll.verticalScrollBar().setValue(scrollPos)
+
+    def reloadMyBooksGrid(self):
+        scrollPos = self.scroll.verticalScrollBar().value()
+
+        while self.myGrid.count():
+            item = self.myGrid.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.setParent(None)
+
+        self.myBooks.sort(key=lambda b: b.name)
+        self.addBooksToGrid(self.myBooks)
+        self.scroll.verticalScrollBar().setValue(scrollPos)
 
 
 # -------------------------------------------------------------------
@@ -505,15 +639,12 @@ class LoginPage(QWidget):
 
     def setupUI(self):
         self.layout = QVBoxLayout(self)
-        # self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # self.layout.addStretch()
-        # self.layout.setSpacing(10)  # spatiu mic între widget-uri
-        self.layout.setContentsMargins(10, 20, 10, 20)  # margini curate
+        self.layout.setContentsMargins(10, 20, 10, 20)
 
         # SEPARATOR SUS
         firstSep = QLabel("~-~-~-~-~-~-~-~-~-~-~")
         firstSep.setProperty("role", "separator")
-        firstSep.setFixedHeight(28)  # elimină spațiul excesiv
+        firstSep.setFixedHeight(28)
         self.layout.addWidget(firstSep)
 
         # TITLU
@@ -595,7 +726,7 @@ class LoginPage(QWidget):
             }
 
             QPushButton:hover {
-                background-color: rgb(40, 40, 80);
+                background-color: rgb(80, 80, 180);
             }
         """)
 
