@@ -524,7 +524,32 @@ class MainPage(QMainWindow):
         for a in sorted(authors):
             self.authorFilter.addItem(a)
 
+    def imprumutaCarte(self, carte):
+        if carte in self.myBooks:
+            return
 
+        # salvam în JSON
+        ok = self.manager.borrowBook(self.username, carte.name)
+        if not ok:
+            print("Cartea este deja împrumutată!")
+            return
+
+        self.myBooks.append(carte)
+        self.allBooks.remove(carte)
+        self.reloadAllBooksGrid(self.allBooks)
+        self.reloadMyBooksGrid()
+
+    def returneazaCarte(self, carte):
+        if carte not in self.myBooks:
+            return
+
+        # in database user-ul nu va mai avea cartea
+        self.manager.returnBook(self.username, carte.name)
+
+        self.myBooks.remove(carte)
+        self.allBooks.append(carte)
+        self.reloadAllBooksGrid(self.allBooks)
+        self.reloadMyBooksGrid()
 
     def applyFilters(self):
         search = self.searchBar.text().lower().strip()
