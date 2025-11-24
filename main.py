@@ -24,39 +24,6 @@ class User:
         self.id = id
 
 
-class Library:
-
-    def addCarte(self, carte: Carte):
-        # carte = Carte(name, author, genre, launchYear, pages)
-        listaCarti.append(carte)
-
-    def filterAutor(self, author):
-        # Filtered search dupa author, va afisa doar cartilor scrise de autorul respectiv
-        listaCurenta.clear()
-        for carte in listaCarti:
-            if author == carte.author:
-                listaCurenta.append(carte)
-
-        # Functie display/update display si afiseaza cartile care corespund filtrarii
-
-    def filterGenre(self, genre):
-        listaCurenta.clear()
-        for carte in listaCarti:
-            if genre == carte.genre:
-                listaCurenta.append(carte)
-
-        # Update display
-
-    def imprumutaCarte(self, carte: Carte):
-        # WIP
-        return
-
-    def returneazaCarte(self, carte: Carte):
-        # WIP
-        return
-
-
-
 
 listaCarti = [
     Carte("Poor Folk", "Fyodor Dostoyevsky", "Fiction", 1846, 271,
@@ -172,8 +139,6 @@ listaCarti = [
 ]
 
   # de introdus sau fetch-ed
-
-listaCurenta = []  # cartile ce vor fi afisate dupa search / filter
 
 
 # -------------------------------------------------------------------
