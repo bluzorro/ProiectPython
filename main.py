@@ -1,7 +1,7 @@
 import sys
 from library_manager import LibraryManager
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QFontMetrics
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout,
     QLabel, QLineEdit, QMainWindow, QGridLayout, QScrollArea, QHBoxLayout, QComboBox, QTabWidget, QSizePolicy
@@ -18,10 +18,7 @@ class Carte:
         self.coverPath = coverPath
 
 
-class User:
-    def __init__(self, name, id):
-        self.name = name
-        self.id = id
+
 
 
 
@@ -478,7 +475,15 @@ class MainPage(QMainWindow):
         layout.addWidget(cover, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # --- TITLU ---
-        title = QLabel(carte.name)
+        # title = QLabel()
+        # title.setWordWrap(False)
+        # title.setFixedWidth(180)
+        # metrics = QFontMetrics(title.font())
+        # elided = metrics.elidedText(carte.name, Qt.TextElideMode.ElideRight, title.width())
+        # title.setText(elided)
+
+        title = ElidedLabel(carte.name)
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet("color: white; font-weight: bold; font-size: 16px;")
         layout.addWidget(title, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -611,6 +616,22 @@ class MainPage(QMainWindow):
         self.addBooksToGrid(self.myBooks)
         self.scroll.verticalScrollBar().setValue(scrollPos)
 
+
+class ElidedLabel(QLabel):
+    def __init__(self, text="", parent=None):
+        super().__init__(text, parent)
+        self.originalText = text
+        self.setWordWrap(False)
+
+    def setText(self, text):
+        self.originalText = text
+        super().setText(text)
+
+    def resizeEvent(self, event):
+        fm = QFontMetrics(self.font())
+        elided = fm.elidedText(self.originalText, Qt.TextElideMode.ElideRight, self.width())
+        super().setText(elided)
+        super().resizeEvent(event)
 
 # -------------------------------------------------------------------
 #                          LOGIN PAGE
