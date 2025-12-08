@@ -130,7 +130,7 @@ database.initDB()
 
 # Adaugam in database cartile (nu folosesc API pt a fetch-ui carti pt ca nu e reliable)
 for carte in listaCarti:
-    if not database.insert_book(carte):
+    if not database.insertBook(carte):
         continue
 
 
@@ -345,9 +345,9 @@ class MainPage(QMainWindow):
         self.populateFilters(listaCarti)
 
         # TAB 2 (Imprumuturi active (ADMIN))
-        print("TAB 2")
+        # print("TAB 2")
         if database.isAdmin(self.username):
-            print("ADMIN!")
+            # print("ADMIN!")
             self.adminBorrowedWidget = QWidget()
             self.adminBorrowedGrid = QGridLayout(self.adminBorrowedWidget)
             self.adminBorrowedGrid.setSpacing(15)
@@ -644,6 +644,21 @@ class MainPage(QMainWindow):
         self.reloadAllBooksGrid(self.allBooks)
         self.reloadMyBooksGrid()
 
+    def adminReturneazaCarte(self, book, username):
+
+        print("Returnam cartea?")
+
+        database.returnBook(username, book.name)
+
+        print("Am returnat cartea?")
+
+        self.allBooks.append(book)
+        print(self.allBooks[-1].name)
+        self.allBooks = database.loadAvailableBooks()
+        print("Am incarcat available books?")
+        self.reloadAllBooksGrid(self.allBooks)
+        self.loadAllBorrowedBooks()
+
     def applyFilters(self):
         search = self.searchBar.text().lower().strip()
         genre = self.genreFilter.currentText()
@@ -714,6 +729,8 @@ class MainPage(QMainWindow):
         rows = cur.fetchall()
         conn.close()
 
+        print("Stergem grid-ul")
+
         # șterge grid-ul vechi
         while self.adminBorrowedGrid.count():
             item = self.adminBorrowedGrid.takeAt(0)
@@ -724,9 +741,13 @@ class MainPage(QMainWindow):
         # creează carduri
         row = 0
         col = 0
-        for book, user in rows:
+
+        print("Creeam carduri")
+
+        for (book, user) in rows:
 
             card = self.createAdminBorrowCard(book, user)
+            print("Am creat card!!")
 
             self.adminBorrowedGrid.addWidget(card, row, col)
 
@@ -743,31 +764,46 @@ class MainPage(QMainWindow):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(6)
 
-        # Titlul
+
         bookCarte = None
         for c in listaCarti:
             if c.name == book:
                 bookCarte = c
                 break
 
-        title = QLabel(bookCarte.name)
+        # --- COVER IMAGE ---
+        cover = QLabel()
+        cover.setObjectName("CoverLabel")
+        # cover.setProperty("role", "cover")
+        cover.setFixedSize(140, 200)
+        cover.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        cover.setText("Cover\n(140x200)")
+        cover.setStyleSheet("background-color: rgb(20,20,50); border-radius: 4px; color: rgb(200,200,255);")
+        layout.addWidget(cover, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # print("Load cover?!")
+        loadCover(self, cover, bookCarte.coverPath)
+
+        # Titlul
+
+        title = ElidedLabel(bookCarte.name)
         title.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
         layout.addWidget(title, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # User
-        user = QLabel(f"Imprumutata de: {user}")
-        user.setStyleSheet("color: rgb(200,200,255); font-size: 14px;")
-        layout.addWidget(user, alignment=Qt.AlignmentFlag.AlignCenter)
+        userLabel = QLabel(f"Imprumutata de: {user}")
+        userLabel.setStyleSheet("color: rgb(200,200,255); font-size: 14px;")
+        layout.addWidget(userLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Timp
-        elapsed = database.getElapsedTime(book)
+        elapsed = database.getElapsedTime(bookCarte)
         timeLabel = QLabel("Imprumutata " + elapsed)
         timeLabel.setStyleSheet("color: rgb(180,180,230); font-size: 13px;")
         layout.addWidget(timeLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Buton RETURN
         btn = QPushButton("Returneaza")
-        btn.clicked.connect(lambda checked, c=bookCarte: self.returneazaCarte(c))
+        btn.clicked.connect(lambda checked, c=bookCarte, u=user: self.adminReturneazaCarte(c, u))
         layout.addWidget(btn)
 
         return card

@@ -75,7 +75,7 @@ def loadAvailableBooks():
     conn = sqlite3.connect("libraryDB")
     cur = conn.cursor()
 
-    cur.execute("SELECT name, author, genre, coverPath FROM books WHERE available = 1")
+    cur.execute("SELECT name, author, genre, launchYear, pages, coverPath FROM books WHERE available = 1")
     rows = cur.fetchall()
 
     conn.close()
@@ -84,9 +84,9 @@ def loadAvailableBooks():
     # print(rows)
 
     availableBooks = []
-    for (name, author, genre, coverPath) in rows:
+    for (name, author, genre, launchYear, pages, coverPath) in rows:
         # print(name, author, genre)
-        availableBooks.append(Carte(name, author, genre, 200, 300, coverPath))
+        availableBooks.append(Carte(name, author, genre, launchYear, pages, coverPath))
 
     # print("Am convertit intr-o lista tot")
 
@@ -144,12 +144,17 @@ def returnBook(username, bookName):
     cur = conn.cursor()
 
     # ștergem doar daca user-ul a imprumutat-o
+    print("Sterge? " + username + bookName)
     cur.execute(
         "DELETE FROM borrowedBooks WHERE book = ? AND user = ?",
         (bookName, username)
     )
 
+    print("Sters!")
+
     cur.execute("UPDATE books SET available = 1 WHERE name = ?", (bookName,))
+
+    print("updated!")
 
     changes = conn.total_changes
     conn.commit()
@@ -173,4 +178,116 @@ def getBorrowedBooks(username):
 
 
 
+def hashPassword(password, salt=None):
+    if salt is None:
+        salt = os.urandom(16).hex()
+
+    hashed = hashlib.sha256((password + salt).encode()).hexdigest()
+    return hashed, salt
+
+
+def authenticateUser(username, password):
+    conn = sqlite3.connect("libraryDB")
+    cur = conn.cursor()
+
+    # print(username, password)
+    cur.execute("SELECT password_hash, salt FROM users WHERE username = ?", (username,))
+    row = cur.fetchone()
+
+    # print(row)
+
+
+
+    if row is None:
+        # user nu exista, creeam noi
+        # print("Creeam user!")
+        input_hash, salt = hashPassword(password)
+        # print("Adaugam user in tabel")
+        cur.execute("INSERT INTO users (username, password_hash, salt) VALUES (?, ?, ?)", (username, input_hash, salt,))
+        conn.commit()
+
+    cur.execute("SELECT password_hash, salt FROM users WHERE username = ?", (username,))
+    row = cur.fetchone()
+    conn.close()
+    # print(row)
+    stored_hash, salt = row
+    input_hash, _ = hashPassword(password, salt)
+
+
+    return input_hash == stored_hash
+
+
+def isAdmin(username):
+    conn = sqlite3.connect("libraryDB")
+    cur = conn.cursor()
+    cur.execute("SELECT username FROM admins WHERE username = ?", (username,))
+    row = cur.fetchone()
+    # print(row)
+
+    return row is not None
+
+
+def insertBook(book):
+    conn = sqlite3.connect("libraryDB")
+    cur = conn.cursor()
+
+    # evitam cartile duplicate
+    cur.execute("SELECT id FROM books WHERE name = ? AND author = ?",
+                (book.name, book.author))
+
+    if cur.fetchone() is not None:
+        conn.close()
+        return False  # deja exista
+
+    cur.execute("""
+        INSERT INTO books(name, author, genre, launchYear, pages, coverPath)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        book.name,
+        book.author,
+        book.genre,
+        book.launchYear,
+        book.pages,
+        book.coverPath,
+    ))
+
+    conn.commit()
+    conn.close()
+    return True
+
+
+def getElapsedTime(book):
+    conn = sqlite3.connect("libraryDB")
+    cur = conn.cursor()
+
+    # print("Cautam borrowDate in db pt " + book.name)
+
+    cur.execute("SELECT borrowDate FROM borrowedBooks WHERE book = ?", (book.name,))
+    row = cur.fetchone()
+
+    # print(row)
+    if row is None:
+        conn.close()
+        # Cartea nu e imprumutata
+        return 0
+
+    now = datetime.now()
+    then = datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S")
+    delta = now - then
+
+    # print("Delta: " + str(delta))
+
+    days = delta.days
+    seconds = delta.seconds
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+
+    if days > 0:
+        return f"acum {days} zile"
+    elif hours > 0:
+        return f"acum {hours} ore"
+    elif minutes > 0:
+        return f"acum {minutes} minute"
+    else:
+        return "chiar acum"
 
