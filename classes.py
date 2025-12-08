@@ -6,3 +6,4 @@ class Carte:
         self.launchYear = launchYear
         self.pages = pages
         self.coverPath = coverPath
+

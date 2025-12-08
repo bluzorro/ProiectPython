@@ -163,6 +163,7 @@ def getBorrowedBooks(username):
     conn = sqlite3.connect("libraryDB")
     cur = conn.cursor()
 
+
     cur.execute("SELECT book FROM borrowedBooks WHERE user = ?", (username,))
     rows = cur.fetchall()
 

@@ -597,6 +597,7 @@ class MainPage(QMainWindow):
 
 
 
+
     def populateFilters(self, books):
         genres = set()
         authors = set()
