@@ -1,26 +1,15 @@
+import random
 import sys
-from library_manager import LibraryManager
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon, QFontMetrics
+from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtGui import QIcon, QFontMetrics, QPixmap
+from PyQt6.QtNetwork import QNetworkRequest, QNetworkReply, QNetworkAccessManager
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout,
     QLabel, QLineEdit, QMainWindow, QGridLayout, QScrollArea, QHBoxLayout, QComboBox, QTabWidget, QSizePolicy
 )
 
-
-class Carte:
-    def __init__(self, name, author, genre, launchYear, pages, coverPath):
-        self.name = name
-        self.author = author
-        self.genre = genre
-        self.launchYear = launchYear
-        self.pages = pages
-        self.coverPath = coverPath
-
-
-
-
-
+import database
+from classes import Carte
 
 listaCarti = [
     Carte("Poor Folk", "Fyodor Dostoyevsky", "Fiction", 1846, 271,
@@ -135,7 +124,43 @@ listaCarti = [
           "https://covers.openlibrary.org/b/title/The%20Catcher%20in%20the%20Rye-L.jpg")
 ]
 
-  # de introdus sau fetch-ed
+
+database.initDB()
+# database.fetch_books()
+
+# Adaugam in database cartile (nu folosesc API pt a fetch-ui carti pt ca nu e reliable)
+for carte in listaCarti:
+    if not database.insert_book(carte):
+        continue
+
+
+def loadCover(self, label: QLabel, url: str):
+    if not url:
+        return
+
+    request = QNetworkRequest(QUrl(url))
+    reply = self.net.get(request)
+
+    reply.finished.connect(lambda: coverLoaded(self, reply, label))
+
+
+def coverLoaded(self, reply, label: QLabel):
+    if reply.error() != QNetworkReply.NetworkError.NoError:
+        print("Failed:", reply.errorString())
+        reply.deleteLater()
+        return
+
+    data = reply.readAll()
+    pixmap = QPixmap()
+    pixmap.loadFromData(data)
+    pixmap = pixmap.scaled(
+        label.width(), label.height(),
+        Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+        Qt.TransformationMode.SmoothTransformation
+    )
+
+    label.setPixmap(pixmap)
+    reply.deleteLater()
 
 
 # -------------------------------------------------------------------
@@ -150,19 +175,25 @@ class MainPage(QMainWindow):
         self.setWindowIcon(QIcon("appIcon.png"))
         self.setMinimumSize(900, 600)
 
-        self.manager = LibraryManager()
+        self.net = QNetworkAccessManager()
+
         self.username = username
+        self.isAdmin = False
+
+
+        if database.isAdmin(username):
+            print("--- Admin rights ---")
+            self.isAdmin = True
 
         # Load in cartile user-ului
-        borrowedNames = self.manager.getUserBooks(self.username)
+        borrowedNames = database.getBorrowedBooks(self.username) #self.manager.getUserBooks(self.username)
 
         self.myBooks = [
             c for c in listaCarti
             if c.name in borrowedNames
         ]
 
-        self.allBooks = [c for c in listaCarti if not self.manager.isBorrowed(c.name)]
-
+        self.allBooks = database.loadAvailableBooks() # [c for c in listaCarti if not self.manager.isBorrowed(c.name)]
 
 
         # CONTINUTUL PRINCIPAL
@@ -191,7 +222,11 @@ class MainPage(QMainWindow):
         secondSep.setFixedHeight(28)
         layout.addWidget(secondSep)
 
-        subtitle = QLabel("Bine ai venit, " + username + "!")
+        # Random welcome message :)
+        welcomeMsgs = ["Bine ai venit, ", "Ne bucuram sa te vedem, "]
+
+
+        subtitle = QLabel(random.choice(welcomeMsgs) + username + "!")
         subtitle.setProperty("role", "subtitle")
         subtitle.setStyleSheet("""
             QLabel {
@@ -203,6 +238,18 @@ class MainPage(QMainWindow):
 
         layout.addSpacing(50)
         layout.addWidget(subtitle)
+
+        if database.isAdmin(username):
+            adminLabel = QLabel("Logat ca ADMIN")
+            adminLabel.setProperty("role", "admin")
+            adminLabel.setStyleSheet("""
+                QLabel[role="admin"] {
+                    color: rgb(255, 200, 255);
+                }
+            """)
+
+            layout.addWidget(adminLabel)
+
         layout.addSpacing(40)
 
         # ---------- SEARCH + FILTRE ----------
@@ -234,6 +281,10 @@ class MainPage(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.addTab(QWidget(), "Carti disponibile")
         self.tabs.addTab(QWidget(), "Cartile mele")
+
+        if database.isAdmin(self.username):
+            self.tabs.addTab(QWidget(), "Imprumuturi active (ADMIN)")
+
         self.tabs.setStyleSheet("""
             QTabWidget::pane {
                 border: none;
@@ -292,6 +343,23 @@ class MainPage(QMainWindow):
 
         self.reloadAllBooksGrid(self.allBooks)
         self.populateFilters(listaCarti)
+
+        # TAB 2 (Imprumuturi active (ADMIN))
+        print("TAB 2")
+        if database.isAdmin(self.username):
+            print("ADMIN!")
+            self.adminBorrowedWidget = QWidget()
+            self.adminBorrowedGrid = QGridLayout(self.adminBorrowedWidget)
+            self.adminBorrowedGrid.setSpacing(15)
+
+            self.adminBorrowedScroll = QScrollArea()
+            self.adminBorrowedScroll.setWidgetResizable(True)
+            self.adminBorrowedScroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.adminBorrowedScroll.setStyleSheet("border: none;")
+            self.adminBorrowedScroll.setWidget(self.adminBorrowedWidget)
+
+            self.tabs.widget(2).setLayout(QVBoxLayout())
+            self.tabs.widget(2).layout().addWidget(self.adminBorrowedScroll)
 
         # Stil general
         self.setStyleSheet("""
@@ -402,6 +470,8 @@ class MainPage(QMainWindow):
             self.reloadAllBooksGrid(self.allBooks)
         elif index == 1:  # My Books
             self.reloadMyBooksGrid()
+        elif index == 2: # Imprumuturi active (ADMIN)
+            self.loadAllBorrowedBooks()
 
     def addBooksToGrid(self, bookList, minCardWidth=180):
         # aflam latimea disponibila in viewport
@@ -457,6 +527,7 @@ class MainPage(QMainWindow):
     def createBookCard(self, carte, myBook=False):
 
         card = QWidget()
+        card.setMaximumWidth(220)
         card.setObjectName("BookCard")
 
         layout = QVBoxLayout(card)
@@ -474,6 +545,10 @@ class MainPage(QMainWindow):
         cover.setStyleSheet("background-color: rgb(20,20,50); border-radius: 4px; color: rgb(200,200,255);")
         layout.addWidget(cover, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        # print("Load cover?!")
+        loadCover(self, cover, carte.coverPath)
+        # print("Loaded cover!")
+
         # --- TITLU ---
         # title = QLabel()
         # title.setWordWrap(False)
@@ -488,7 +563,7 @@ class MainPage(QMainWindow):
         layout.addWidget(title, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # --- AUTOR ---
-        author = QLabel(carte.author)
+        author = ElidedLabel(carte.author)
         author.setStyleSheet("color: rgb(200,200,255); font-size: 14px;")
         layout.addWidget(author, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -504,6 +579,14 @@ class MainPage(QMainWindow):
 
             layout.addWidget(btn)
         else:
+            # Aici creeam si "imprumutat acum x timp"
+            # print("ADaugam si imprumut label")
+            elapsed = database.getElapsedTime(carte)
+            # print("Am aflat elapsedTime: " + str(elapsed))
+            borrowLabel = QLabel("Imprumutata " + elapsed)
+            borrowLabel.setStyleSheet("color: rgb(200,200,255); font-size: 11px;")
+            layout.addWidget(borrowLabel, alignment=Qt.AlignmentFlag.AlignCenter)
+
             btn = QPushButton("Returneaza")
             # btn.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
             btn.clicked.connect(lambda checked, c=carte: self.returneazaCarte(c))
@@ -534,13 +617,15 @@ class MainPage(QMainWindow):
             return
 
         # salvam în JSON
-        ok = self.manager.borrowBook(self.username, carte.name)
+        # ok = self.manager.borrowBook(self.username, carte.name)
+        ok = database.borrowBook(self.username, carte.name)
         if not ok:
-            print("Cartea este deja împrumutată!")
+            print("Cartea este deja imprumutata!")
             return
 
         self.myBooks.append(carte)
         self.allBooks.remove(carte)
+        self.allBooks = database.loadAvailableBooks()
         self.reloadAllBooksGrid(self.allBooks)
         self.reloadMyBooksGrid()
 
@@ -549,10 +634,12 @@ class MainPage(QMainWindow):
             return
 
         # in database user-ul nu va mai avea cartea
-        self.manager.returnBook(self.username, carte.name)
+        # self.manager.returnBook(self.username, carte.name)
+        database.returnBook(self.username, carte.name)
 
         self.myBooks.remove(carte)
         self.allBooks.append(carte)
+        self.allBooks = database.loadAvailableBooks()
         self.reloadAllBooksGrid(self.allBooks)
         self.reloadMyBooksGrid()
 
@@ -615,6 +702,74 @@ class MainPage(QMainWindow):
         self.myBooks.sort(key=lambda b: b.name)
         self.addBooksToGrid(self.myBooks)
         self.scroll.verticalScrollBar().setValue(scrollPos)
+
+    def loadAllBorrowedBooks(self):
+        import sqlite3
+
+        conn = sqlite3.connect("libraryDB")
+        cur = conn.cursor()
+
+        cur.execute("SELECT book, user FROM borrowedBooks")
+        rows = cur.fetchall()
+        conn.close()
+
+        # șterge grid-ul vechi
+        while self.adminBorrowedGrid.count():
+            item = self.adminBorrowedGrid.takeAt(0)
+            w = item.widget()
+            if w:
+                w.setParent(None)
+
+        # creează carduri
+        row = 0
+        col = 0
+        for book, user in rows:
+
+            card = self.createAdminBorrowCard(book, user)
+
+            self.adminBorrowedGrid.addWidget(card, row, col)
+
+            col += 1
+            if col >= 3:
+                col = 0
+                row += 1
+
+    def createAdminBorrowCard(self, book, user):
+
+        card = QWidget()
+        card.setObjectName("BookCard")
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(6)
+
+        # Titlul
+        bookCarte = None
+        for c in listaCarti:
+            if c.name == book:
+                bookCarte = c
+                break
+
+        title = QLabel(bookCarte.name)
+        title.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        layout.addWidget(title, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # User
+        user = QLabel(f"Imprumutata de: {user}")
+        user.setStyleSheet("color: rgb(200,200,255); font-size: 14px;")
+        layout.addWidget(user, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # Timp
+        elapsed = database.getElapsedTime(book)
+        timeLabel = QLabel("Imprumutata " + elapsed)
+        timeLabel.setStyleSheet("color: rgb(180,180,230); font-size: 13px;")
+        layout.addWidget(timeLabel, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # Buton RETURN
+        btn = QPushButton("Returneaza")
+        btn.clicked.connect(lambda checked, c=bookCarte: self.returneazaCarte(c))
+        layout.addWidget(btn)
+
+        return card
 
 
 class ElidedLabel(QLabel):
@@ -744,11 +899,17 @@ class LoginPage(QWidget):
     # -------------------------------
     def doLogin(self):
         userName = self.username.text()
-        if (userName == ""):
+        password = self.password.text()
+
+        if database.authenticateUser(userName, password):
+            print("Login OK")
+            self.main = MainPage(userName)
+            self.main.show()
+            self.close()
+        else:
+            print("Parola gresita")
             return
-        self.main = MainPage(userName)
-        self.main.show()
-        self.close()
+
 
 
 # -------------------------------------------------------------------
