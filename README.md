@@ -29,7 +29,7 @@
   - Vizualizarea tuturor cărților împrumutate de toți utilizatorii
   - Posibilitatea de a returna manual orice carte
 
-- 💾 **Persistență datelor**
+- 💾 **Persistența datelor**
   - Aplicația folosește **SQLite**
   - Starea bibliotecii este salvată între sesiuni
 
