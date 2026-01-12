@@ -49,3 +49,14 @@
 1. Clonează repository-ul:
    ```bash
    git clone https://github.com/bluzorro/ProiectPython.git
+   ```
+
+2. Instalează dependențele:
+  ```bash
+  pip install PyQt6
+  ```
+
+3. Rulează aplicația:
+  ```bash
+  python main.py
+  ```
