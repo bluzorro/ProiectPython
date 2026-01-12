@@ -4,9 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="062a7397-0243-4324-9ea8-8ba0b7a692b4" name="Changes" comment="inceput">
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    <list default="true" id="062a7397-0243-4324-9ea8-8ba0b7a692b4" name="Changes" comment="Database adaugat">
+      <change afterPath="$PROJECT_DIR$/books.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appIcon.png" beforeDir="false" afterPath="$PROJECT_DIR$/images/appIcon.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/carte.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libraryDB" beforeDir="false" afterPath="$PROJECT_DIR$/libraryDB" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,28 +49,64 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "master",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/user/PycharmProjects/ProiectPython",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.keymap",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/user/PycharmProjects/ProiectPython&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\user\PycharmProjects\ProiectPython\images" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ProiectPython" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -82,6 +124,24 @@
       <updated>1762710055527</updated>
       <workItem from="1762710056542" duration="4535000" />
       <workItem from="1762790754901" duration="971000" />
+      <workItem from="1762794096912" duration="2814000" />
+      <workItem from="1762797900257" duration="6477000" />
+      <workItem from="1763380938209" duration="7338000" />
+      <workItem from="1763664720881" duration="1317000" />
+      <workItem from="1763917147956" duration="8696000" />
+      <workItem from="1763967523880" duration="4079000" />
+      <workItem from="1763982763915" duration="8665000" />
+      <workItem from="1764003671761" duration="3814000" />
+      <workItem from="1764746055146" duration="4078000" />
+      <workItem from="1764771369660" duration="5640000" />
+      <workItem from="1764918437253" duration="4670000" />
+      <workItem from="1765130335680" duration="3237000" />
+      <workItem from="1765181165088" duration="967000" />
+      <workItem from="1765192137956" duration="2304000" />
+      <workItem from="1765203595335" duration="7550000" />
+      <workItem from="1768207237350" duration="470000" />
+      <workItem from="1768237093393" duration="1879000" />
+      <workItem from="1768243058305" duration="396000" />
     </task>
     <task id="LOCAL-00001" summary="inceput">
       <option name="closed" value="true" />
@@ -91,7 +151,111 @@
       <option name="project" value="LOCAL" />
       <updated>1762712427865</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Functii noi">
+      <option name="closed" value="true" />
+      <created>1762795674431</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1762795674431</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Functii noi">
+      <option name="closed" value="true" />
+      <created>1762796208597</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1762796208597</updated>
+    </task>
+    <task id="LOCAL-00004" summary="GUI (WIP)">
+      <option name="closed" value="true" />
+      <created>1762805667926</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1762805667926</updated>
+    </task>
+    <task id="LOCAL-00005" summary="GUI (WIP)">
+      <option name="closed" value="true" />
+      <created>1763386470648</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1763386470649</updated>
+    </task>
+    <task id="LOCAL-00006" summary="GUI (WIP)">
+      <option name="closed" value="true" />
+      <created>1763921241064</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1763921241064</updated>
+    </task>
+    <task id="LOCAL-00007" summary="GUI (WIP)">
+      <option name="closed" value="true" />
+      <created>1763921797163</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1763921797163</updated>
+    </task>
+    <task id="LOCAL-00008" summary="GUI (WIP)">
+      <option name="closed" value="true" />
+      <created>1763922408834</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1763922408834</updated>
+    </task>
+    <task id="LOCAL-00009" summary="GUI practic gata :)">
+      <option name="closed" value="true" />
+      <created>1763992982164</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1763992982164</updated>
+    </task>
+    <task id="LOCAL-00010" summary="GUI practic gata :)">
+      <option name="closed" value="true" />
+      <created>1763993133836</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1763993133836</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Elide-able titlu carte">
+      <option name="closed" value="true" />
+      <created>1764006246091</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1764006246091</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Database adaugat">
+      <option name="closed" value="true" />
+      <created>1765211073654</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1765211073654</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Database adaugat">
+      <option name="closed" value="true" />
+      <created>1765211183228</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1765211183228</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Database adaugat">
+      <option name="closed" value="true" />
+      <created>1765215547902</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1765215547902</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -110,9 +274,14 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="inceput" />
-    <option name="LAST_COMMIT_MESSAGE" value="inceput" />
+    <MESSAGE value="Functii noi" />
+    <MESSAGE value="GUI (WIP)" />
+    <MESSAGE value="GUI practic gata :)" />
+    <MESSAGE value="Elide-able titlu carte" />
+    <MESSAGE value="Database adaugat" />
+    <option name="LAST_COMMIT_MESSAGE" value="Database adaugat" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ProiectPython$main.coverage" NAME="main Coverage Results" MODIFIED="1762711891671" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv/Lib" />
+    <SUITE FILE_PATH="coverage/ProiectPython$main.coverage" NAME="main Coverage Results" MODIFIED="1768241294170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

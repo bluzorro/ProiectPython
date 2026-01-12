@@ -70,7 +70,7 @@ def insertInitialBooks(book_list):
 
 def loadAvailableBooks():
     # print("Loading available books...")
-    from classes import (Carte)
+    from carte import (Carte)
     # print("Imported Carte")
     conn = sqlite3.connect("libraryDB")
     cur = conn.cursor()
