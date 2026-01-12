@@ -52,11 +52,11 @@
    ```
 
 2. Instalează dependențele:
-  ```bash
-  pip install PyQt6
-  ```
+   ```bash
+   pip install PyQt6
+   ```
 
 3. Rulează aplicația:
-  ```bash
-  python main.py
-  ```
+   ```bash
+   python main.py
+   ```
